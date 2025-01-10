@@ -1,17 +1,8 @@
+#include <Servo.h>
+#include <Key.h>
+#include <Keypad.h>
+
 #include <Arduino_BuiltIn.h>
-
-// A basic everyday NeoPixel strip test program.
-
-// NEOPIXEL BEST PRACTICES for most reliable operation:
-// - Add 1000 uF CAPACITOR between NeoPixel strip's + and - connections.
-// - MINIMIZE WIRING LENGTH between microcontroller board and first pixel.
-// - NeoPixel strip's DATA-IN should pass through a 300-500 OHM RESISTOR.
-// - AVOID connecting NeoPixels on a LIVE CIRCUIT. If you must, ALWAYS
-//   connect GROUND (-) first, then +, then data.
-// - When using a 3.3V microcontroller with a 5V-powered NeoPixel strip,
-//   a LOGIC-LEVEL CONVERTER on the data line is STRONGLY RECOMMENDED.
-// (Skipping these may work OK on your workbench but can fail in the field)
-
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
 #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
@@ -20,27 +11,33 @@
 
 // Which pin on the Arduino is connected to the NeoPixels?
 // On a Trinket or Gemma we suggest changing this to 1:
-#define LED_PIN    12
-
+#define LED_PIN    13
 // How many NeoPixels are attached to the Arduino?
 #define LED_COUNT 20
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-// Argument 1 = Number of pixels in NeoPixel strip
-// Argument 2 = Arduino pin number (most are valid)
-// Argument 3 = Pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 
+const byte ROWS = 4; 
+const byte COLS = 4; 
+
+char hexaKeys[ROWS][COLS] = {
+  {'1', '2', '3', 'A'},
+  {'4', '5', '6', 'B'},
+  {'7', '8', '9', 'C'},
+  {'*', '0', '#', 'D'}
+};
+
+byte rowPins[ROWS] = {9, 8, 7, 6}; 
+byte colPins[COLS] = {5, 4, 3, 2}; 
+
+Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
 //variables for blinking effect
 const int delayConst = 10; //how long a blink should last
 int blinkDelay = delayConst;
 
+Servo servo;
 
 // setup() function -- runs once at startup --------------------------------
 void setup() {
@@ -50,10 +47,13 @@ void setup() {
   clock_prescale_set(clock_div_1);
 #endif
   // END of Trinket-specific code.
-
+  Serial.begin(9600);
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(255); // Set BRIGHTNESS to about 1/5 (max = 255)
+
+  servo.attach(12);
+  servo.write(0);
 }
 
 
@@ -65,28 +65,76 @@ void loop() {
   const uint32_t off = strip.Color(0, 0, 0);
   const int r = 255, g = 64, b = 15;
   
-  int blink = 10; //stores random number for if we should blink
-  const int chance = 20 //chances of blink occuring
+  static int blink = 10; //stores random number for if we should blink
+  const int chance = 20; //chances of blink occuring
 
   static uint32_t eye; //color to make the eyes, controlls blinking effect
   
-  blinkDelay --; 
-  if (blinkDelay <= 0){ //when delay is done after previous blink, see if we blink again
-    blink = random(0, chance);
-    blinkDelay = delayConst;
+  static bool manual = 0; //bool dictating manual control of eyes or automatic, 0 = auto
+  static bool eyeControl; 
+  bool temp = 1;
+  static bool binBlink = 0;
+
+  //CHECK FOR INPUTS
+
+  char key = customKeypad.getKey();
+  Serial.println(key);
+  if (key == '*'){
+    manual = !manual;
+    Serial.println(manual);
   }
 
-  if (blink == 0) { //if we generated zero, we blink
-    eye = off;
-  }
-  else 
-  {
-    eye = red;
-  }
+  Serial.println(manual);
+  if (manual == 0){
+    blinkDelay --; 
+    if (blinkDelay <= 0){ //when delay is done after previous blink, see if we blink again
+      blink = random(0, chance);
+      blinkDelay = delayConst;
+    }
 
-  
+    if (blink == 0) { //if we generated zero, we blink
+      eye = off;
+    }
+    else 
+    {
+      eye = red;
+    }
+        
+  } else {
+    //key = customKeypad.getKey();
+    
+    if (key == '7'){
+      binBlink = !binBlink;
+    }
+    if (binBlink == 0) { //if button is pressed, we blink
+      eye = off;
+    }
+    else 
+    {
+      eye = red;
+    }    
+  }
   flicker(r, g, b, 10);
   eyes(eye, 11, LED_COUNT); //write the results of the blink
+
+
+  //end of lights, start of servos
+  //turnServo();
+}
+
+//simple test function to make sure the servo is properly configured
+void turnServo(){
+  for(int angle = 0; angle < 100; angle++)  
+  {                                  
+    servo.write(angle);               
+    delay(15);                   
+  } 
+  // now scan back from 180 to 0 degrees
+  for(int angle = 90; angle > 0; angle--)    
+  {                                
+    servo.write(angle);           
+    delay(15);       
+  } 
 }
 
 void eyes(uint32_t color, int first, int last) {
