@@ -53,7 +53,7 @@ void setup() {
   strip.setBrightness(255); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   servo.attach(12);
-  servo.write(0);
+  servo.write(10);
 }
 
 
@@ -68,6 +68,7 @@ void loop() {
   static int blink = 10; //stores random number for if we should blink
   const int chance = 20; //chances of blink occuring
 
+  static uint32_t oldEye;
   static uint32_t eye; //color to make the eyes, controlls blinking effect
   
   static bool manual = 0; //bool dictating manual control of eyes or automatic, 0 = auto
@@ -92,12 +93,17 @@ void loop() {
       blinkDelay = delayConst;
     }
 
+    oldEye = eye;
     if (blink == 0) { //if we generated zero, we blink
       eye = off;
     }
     else 
     {
       eye = red;
+    }
+
+    if (eye != oldEye){
+      blinkS(servo);
     }
         
   } else {
@@ -106,13 +112,17 @@ void loop() {
     if (key == '7'){
       binBlink = !binBlink;
     }
+    oldEye = eye;
     if (binBlink == 0) { //if button is pressed, we blink
       eye = off;
     }
     else 
     {
       eye = red;
-    }    
+    }
+    if (eye != oldEye){
+      blinkS(servo);
+    }  
   }
   flicker(r, g, b, 10);
   eyes(eye, 11, LED_COUNT); //write the results of the blink
@@ -124,17 +134,36 @@ void loop() {
 
 //simple test function to make sure the servo is properly configured
 void turnServo(){
-  for(int angle = 0; angle < 100; angle++)  
+  for(int angle = 10; angle < 100; angle++)  
   {                                  
     servo.write(angle);               
     delay(15);                   
   } 
   // now scan back from 180 to 0 degrees
-  for(int angle = 90; angle > 0; angle--)    
+  for(int angle = 90; angle > 10; angle--)    
   {                                
     servo.write(angle);           
     delay(15);       
   } 
+}
+
+void blinkS(Servo eyelid){
+  static bool openClosed = 1; //1 = open, 
+  
+  if (openClosed == 0){
+    for(int angle = 90; angle > 0; angle--)    
+    {                                
+      servo.write(angle);           
+      delay(5);       
+    } 
+  } else {
+    for(int angle = 0; angle < 90; angle++)    
+    {                                
+      servo.write(angle);           
+      delay(5);       
+    } 
+  }
+  openClosed = !openClosed;
 }
 
 void eyes(uint32_t color, int first, int last) {
