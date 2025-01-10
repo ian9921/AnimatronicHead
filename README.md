@@ -21,6 +21,8 @@ It's important to note that you should make sure you use the same battery pack f
 # Implementing The Keypad Controls
 For this, I used a simple 4x4 keypad like the one found here: https://www.amazon.com/outstanding-Adhesive-Membrane-Keyboard-Prototyping/dp/B08JYNM8D9?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=AB0Z3CZXYVM06&gQT=1
 
+![headKeypad](https://github.com/user-attachments/assets/dd9c4b69-e48c-4950-8fbc-39db1258fe61)
+
 
 Looking down on the keypad as in the picture, connect each pin from left to right to the arduino pins 9, 8, 7, 6, 5, 4, 3, and 2. If done properly, when you upload the sketch you can now manually control when the eye lights "blink". Pressing the "*" button will cause the head to toggle between automatic and manual blink mode. In automatic, the head blinks on its own. In manual, pressing the "7" key will toggle the states of the eye lights.
 
