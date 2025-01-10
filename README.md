@@ -20,11 +20,7 @@ It's important to note that you should make sure you use the same battery pack f
 
 # Implementing The Keypad Controls
 For this, I used a simple 4x4 keypad like the one found here: https://www.amazon.com/outstanding-Adhesive-Membrane-Keyboard-Prototyping/dp/B08JYNM8D9?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=AB0Z3CZXYVM06&gQT=1
-[SEL Values Brochure-1.pdf](https://github.com/user-attachments/files/18374251/SEL.Values.Brochure-1.pdf)
-![headKeypad](https://github.com/user-attachments/assets/61b6d8b2-2299-45bd-acf1-f2cb2861e6fa)
-![5-00 Exploring the Wastes Player Version](https://github.com/user-attachments/assets/9ba18477-539f-4018-b62b-de2764ffc366)
-![5-00 Exploring the Wastes](https://github.com/user-attachments/assets/4c0ad2b3-ff06-4edb-b06e-66797e0a1f9c)
-![5-00 Exploring the Wastes(1)](https://github.com/user-attachments/assets/a286707a-6e76-41ab-804a-4395cc8dc729)
+
 
 Looking down on the keypad as in the picture, connect each pin from left to right to the arduino pins 9, 8, 7, 6, 5, 4, 3, and 2. If done properly, when you upload the sketch you can now manually control when the eye lights "blink". Pressing the "*" button will cause the head to toggle between automatic and manual blink mode. In automatic, the head blinks on its own. In manual, pressing the "7" key will toggle the states of the eye lights.
 
