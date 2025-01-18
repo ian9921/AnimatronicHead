@@ -38,6 +38,7 @@ const int delayConst = 10; //how long a blink should last
 int blinkDelay = delayConst;
 
 Servo servo;
+Servo servo2;
 
 // setup() function -- runs once at startup --------------------------------
 void setup() {
@@ -54,6 +55,9 @@ void setup() {
 
   servo.attach(12);
   servo.write(10);
+
+  servo2.attach(11);
+  servo2.write(170);
 }
 
 
@@ -103,7 +107,7 @@ void loop() {
     }
 
     if (eye != oldEye){
-      blinkS(servo);
+      blinkS(servo, servo2);
     }
         
   } else {
@@ -121,7 +125,7 @@ void loop() {
       eye = red;
     }
     if (eye != oldEye){
-      blinkS(servo);
+      blinkS(servo, servo2);
     }  
   }
   flicker(r, g, b, 10);
@@ -136,7 +140,7 @@ void loop() {
 void turnServo(){
   for(int angle = 10; angle < 100; angle++)  
   {                                  
-    servo.write(angle);               
+    servo.write(angle);           
     delay(15);                   
   } 
   // now scan back from 180 to 0 degrees
@@ -147,20 +151,35 @@ void turnServo(){
   } 
 }
 
-void blinkS(Servo eyelid){
+void blinkS(Servo lid1, Servo lid2){
   static bool openClosed = 1; //1 = open, 
   
   if (openClosed == 0){
     for(int angle = 90; angle > 0; angle--)    
     {                                
-      servo.write(angle);           
-      delay(5);       
+      lid1.write(angle);   
+      //lid2.write(90+angle);
+      Serial.write(angle);
+      Serial.write(90+angle);
+              
+      delay(1);       
+    } 
+    for(int angle = 90; angle < 180; angle++){
+      lid2.write(angle);
+      delay(1);
     } 
   } else {
     for(int angle = 0; angle < 90; angle++)    
     {                                
-      servo.write(angle);           
-      delay(5);       
+      lid1.write(angle);
+      lid2.write(180-angle);
+      Serial.write(angle);
+      Serial.write(180-angle);     
+      delay(1);       
+    } 
+    for(int angle = 180; angle > 90; angle--){
+      lid2.write(angle);
+      delay(1);
     } 
   }
   openClosed = !openClosed;
