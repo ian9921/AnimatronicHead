@@ -40,6 +40,9 @@ int blinkDelay = delayConst;
 Servo servo;
 Servo servo2;
 
+int s1State[90];
+int s2State[90];
+
 // setup() function -- runs once at startup --------------------------------
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
@@ -48,7 +51,7 @@ void setup() {
   clock_prescale_set(clock_div_1);
 #endif
   // END of Trinket-specific code.
-  Serial.begin(9600);
+  
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(255); // Set BRIGHTNESS to about 1/5 (max = 255)
@@ -58,6 +61,12 @@ void setup() {
 
   servo2.attach(11);
   servo2.write(170);
+  Serial.begin(57600);
+
+  for(int i = 0; i < 90; i++){
+    s1State[i] = 135 - i;
+    s2State[i] = 45 + i;
+  }
 }
 
 
@@ -155,32 +164,17 @@ void blinkS(Servo lid1, Servo lid2){
   static bool openClosed = 1; //1 = open, 
   
   if (openClosed == 0){
-    for(int angle = 90; angle > 0; angle--)    
-    {                                
-      lid1.write(angle);   
-      //lid2.write(90+angle);
-      Serial.write(angle);
-      Serial.write(90+angle);
-              
-      delay(1);       
-    } 
-    for(int angle = 90; angle < 180; angle++){
-      lid2.write(angle);
+    for (int angle = 0; angle < 90; angle++){
+      lid1.write(s1State[angle]);
+      lid2.write(s2State[angle]);
       delay(1);
-    } 
+    }
   } else {
-    for(int angle = 0; angle < 90; angle++)    
-    {                                
-      lid1.write(angle);
-      lid2.write(180-angle);
-      Serial.write(angle);
-      Serial.write(180-angle);     
-      delay(1);       
-    } 
-    for(int angle = 180; angle > 90; angle--){
-      lid2.write(angle);
+    for (int angle = 90; angle > 0; angle--){
+      lid1.write(s1State[angle]);
+      lid2.write(s2State[angle]);
       delay(1);
-    } 
+    }
   }
   openClosed = !openClosed;
 }
